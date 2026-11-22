@@ -624,8 +624,7 @@
                     const btn = document.createElement('div');
                     btn.id = `vkey-${keyObj.zy}`;
                     btn.dataset.zy = keyObj.zy;
-                    btn.className = `jelly-key relative w-11 sm:w-12 md:w-14 h-11 md:h-12 rounded-xl border-2 flex flex-col items-center justify-center select-none cursor-default ${getZoneClasses(keyObj.zone)}`;
-                    btn.onclick = () => showPhysicalKeyboardReminder();
+                    btn.className = `jelly-key relative w-11 sm:w-12 md:w-14 h-11 md:h-12 rounded-xl border-2 flex flex-col items-center justify-center select-none pointer-events-none ${getZoneClasses(keyObj.zone)}`;
 
                     btn.innerHTML = `
                         <span class="absolute top-0.5 left-1.5 text-[10px] font-mono opacity-55 font-bold">${keyObj.en}</span>
@@ -642,8 +641,7 @@
             const spaceBtn = document.createElement('div');
             spaceBtn.id = `vkey-ˉ`;
             spaceBtn.dataset.zy = 'ˉ';
-            spaceBtn.onclick = () => showPhysicalKeyboardReminder();
-            spaceBtn.className = `jelly-key w-64 sm:w-80 md:w-96 h-10 md:h-11 rounded-2xl border-2 flex items-center justify-center gap-2 cursor-default ${getZoneClasses('tone')}`;
+            spaceBtn.className = `jelly-key w-64 sm:w-80 md:w-96 h-10 md:h-11 rounded-2xl border-2 flex items-center justify-center gap-2 select-none pointer-events-none ${getZoneClasses('tone')}`;
             spaceBtn.innerHTML = `
                 <span class="text-base font-black">ˉ</span>
                 <span class="text-xs md:text-sm font-bold">${SPACE_KEY.label}</span>
@@ -876,6 +874,11 @@
         }
 
         window.addEventListener('keydown', (e) => {
+            // 確保沒有任何按鈕取得焦點，避免按空白鍵時誤觸滑鼠剛點過的按鈕
+            if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
+                document.activeElement.blur();
+            }
+
             const collectionOpen = !document.getElementById('collection-modal').classList.contains('hidden');
             const victoryOpen = !document.getElementById('victory-modal').classList.contains('hidden');
             const speedResOpen = !document.getElementById('speed-result-modal').classList.contains('hidden');
