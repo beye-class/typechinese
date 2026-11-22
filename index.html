@@ -96,6 +96,26 @@
             animation: gentle-shake 0.3s ease-in-out;
         }
 
+        /* 按錯鍵盤按鍵時的紅色閃爍回饋 */
+        @keyframes wrong-key-flash {
+            0%, 100% {
+                background-color: #FECACA !important;
+                border-color: #EF4444 !important;
+                color: #991B1B !important;
+                transform: scale(0.95);
+            }
+            50% {
+                background-color: #FCA5A5 !important;
+                border-color: #DC2626 !important;
+                color: #7F1D1D !important;
+                transform: scale(1.05);
+            }
+        }
+        .wrong-key-alert {
+            animation: wrong-key-flash 0.45s ease-in-out;
+            z-index: 25;
+        }
+
         /* 吉祥物呼吸跳動動畫 */
         @keyframes float-mascot {
             0%, 100% { transform: translateY(0px); }
@@ -131,7 +151,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between text-slate-700">
 
-    <!-- 頂部導覽與吉祥物養成列 -->
     <header class="w-full max-w-6xl mx-auto px-4 pt-3 pb-2">
         <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-sm border-2 border-mint-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3">
             
@@ -191,7 +210,6 @@
         </div>
     </header>
 
-    <!-- 主遊戲與練習區 -->
     <main class="flex-1 w-full max-w-6xl mx-auto px-4 flex flex-col justify-between gap-3 py-1">
         
         <!-- 關卡模式切換器 -->
@@ -225,7 +243,7 @@
         <!-- 中央互動舞台卡片 -->
         <div class="relative bg-white/95 rounded-3xl border-4 border-mint-200 shadow-md p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 min-h-[210px] overflow-hidden">
             
-            <!-- 背景裝飾雲朵與說明 -->
+            <!-- 背景說明 -->
             <div class="absolute top-2 left-4 text-xs font-bold text-mint-500 flex items-center gap-2 z-20">
                 <span id="mode-subtitle" class="bg-mint-50 px-3 py-1 rounded-full border border-mint-200">💡 跟著發光的黃色按鍵，找出注音符號的位置吧！</span>
             </div>
@@ -244,7 +262,7 @@
                         瓢蟲
                     </div>
                     <div id="prompt-desc" class="text-xs text-slate-400 text-center mt-0.5">
-                        背上有圓點點的小昆蟲
+                        背上有圓點的小昆蟲
                     </div>
                 </div>
 
@@ -315,7 +333,6 @@
             </div>
         </div>
 
-        <!-- 台灣標準大千注音虛擬鍵盤區 -->
         <section class="bg-white/95 rounded-3xl border-4 border-mint-200 shadow-md p-3 md:p-4 flex flex-col gap-2">
             <!-- 鍵盤分區顏色圖例說明 -->
             <div class="flex flex-wrap items-center justify-between gap-2 px-2 text-xs">
@@ -326,7 +343,7 @@
                     <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-sky-100 border border-sky-400 inline-block"></span> 右手韻母區 (ㄚ~ㄦ)</span>
                     <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-berry-100 border border-berry-400 inline-block"></span> 聲調魔法鍵 (ˉ ˊ ˇ ˋ ˙)</span>
                 </div>
-                <span class="text-[11px] text-slate-400">💡 可直接使用電腦鍵盤按鍵，或用滑鼠／平板點擊下方按鍵喔！</span>
+                <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">🔒 實體鍵盤專屬訓練：請用雙手按實體鍵盤喔！</span>
             </div>
 
             <!-- 鍵盤主體容器 -->
@@ -604,11 +621,11 @@
                 rowEl.classList.add(...indentClasses[rowIndex].split(' '));
 
                 row.forEach(keyObj => {
-                    const btn = document.createElement('button');
+                    const btn = document.createElement('div');
                     btn.id = `vkey-${keyObj.zy}`;
                     btn.dataset.zy = keyObj.zy;
-                    btn.className = `jelly-key relative w-11 sm:w-12 md:w-14 h-11 md:h-12 rounded-xl border-2 flex flex-col items-center justify-center select-none cursor-pointer ${getZoneClasses(keyObj.zone)}`;
-                    btn.onclick = () => handleZhuyinInput(keyObj.zy);
+                    btn.className = `jelly-key relative w-11 sm:w-12 md:w-14 h-11 md:h-12 rounded-xl border-2 flex flex-col items-center justify-center select-none cursor-default ${getZoneClasses(keyObj.zone)}`;
+                    btn.onclick = () => showPhysicalKeyboardReminder();
 
                     btn.innerHTML = `
                         <span class="absolute top-0.5 left-1.5 text-[10px] font-mono opacity-55 font-bold">${keyObj.en}</span>
@@ -622,17 +639,35 @@
 
             const spaceRow = document.createElement('div');
             spaceRow.className = 'flex items-center justify-center w-full mt-1';
-            const spaceBtn = document.createElement('button');
+            const spaceBtn = document.createElement('div');
             spaceBtn.id = `vkey-ˉ`;
             spaceBtn.dataset.zy = 'ˉ';
-            spaceBtn.onclick = () => handleZhuyinInput('ˉ');
-            spaceBtn.className = `jelly-key w-64 sm:w-80 md:w-96 h-10 md:h-11 rounded-2xl border-2 flex items-center justify-center gap-2 cursor-pointer ${getZoneClasses('tone')}`;
+            spaceBtn.onclick = () => showPhysicalKeyboardReminder();
+            spaceBtn.className = `jelly-key w-64 sm:w-80 md:w-96 h-10 md:h-11 rounded-2xl border-2 flex items-center justify-center gap-2 cursor-default ${getZoneClasses('tone')}`;
             spaceBtn.innerHTML = `
                 <span class="text-base font-black">ˉ</span>
                 <span class="text-xs md:text-sm font-bold">${SPACE_KEY.label}</span>
             `;
             spaceRow.appendChild(spaceBtn);
             container.appendChild(spaceRow);
+        }
+
+        function showPhysicalKeyboardReminder() {
+            playTone('gentle-oops');
+            setMascotSpeech('🔒「現在是盲打挑戰喔！請用雙手按『實體鍵盤』，不能偷點螢幕上的按鍵唷～」');
+            spawnFloatingText('🔒 請按實體鍵盤！');
+        }
+
+        function triggerWrongKeyFeedback(wrongZy) {
+            const wrongBtn = document.getElementById(`vkey-${wrongZy}`);
+            if (wrongBtn) {
+                wrongBtn.classList.remove('wrong-key-alert');
+                void wrongBtn.offsetWidth;
+                wrongBtn.classList.add('wrong-key-alert');
+                setTimeout(() => {
+                    wrongBtn.classList.remove('wrong-key-alert');
+                }, 480);
+            }
         }
 
         function getCurrentTargetData() {
@@ -645,7 +680,7 @@
         }
 
         function updateStageUI() {
-            if (currentMode === 4) return; // 速度挑戰模式不跑標準UI
+            if (currentMode === 4) return;
 
             const { pack, currentWordObj, currentCharObj, targetZyList, currentTargetZy } = getCurrentTargetData();
 
@@ -709,14 +744,12 @@
         }
 
         function handleZhuyinInput(inputZy) {
-            // 視覺按壓回饋
             const pressedBtn = document.getElementById(`vkey-${inputZy}`);
             if (pressedBtn) {
                 pressedBtn.classList.add('active-press');
                 setTimeout(() => pressedBtn.classList.remove('active-press'), 120);
             }
 
-            // 若在第四關速度挑戰中
             if (currentMode === 4) {
                 if (speedActive) {
                     if (inputZy === currentSpeedTargetZy) {
@@ -731,12 +764,14 @@
                         combo = 0;
                         playTone('gentle-oops');
                         updateTopStats();
+                        triggerWrongKeyFeedback(inputZy);
+                        const wrongLabel = inputZy === 'ˉ' ? '空白鍵(一聲)' : inputZy;
+                        setMascotSpeech(`❌「剛剛按到『${wrongLabel}』囉！快找發光的『${currentSpeedTargetZy}』！」`);
                     }
                 }
                 return;
             }
 
-            // 標準 1~3 關卡邏輯
             const { pack, currentWordObj, targetZyList, currentTargetZy } = getCurrentTargetData();
 
             if (inputZy === currentTargetZy) {
@@ -779,25 +814,25 @@
                 combo = 0;
                 playTone('gentle-oops');
                 updateTopStats();
+                triggerWrongKeyFeedback(inputZy);
 
                 const typingCard = document.getElementById('typing-card');
                 typingCard.classList.remove('shake-error');
                 void typingCard.offsetWidth;
                 typingCard.classList.add('shake-error');
 
+                const wrongLabel = inputZy === 'ˉ' ? '空白鍵(一聲)' : inputZy;
                 const expectedKey = ZHUYIN_MAP[currentTargetZy];
                 if (currentTargetZy === 'ˉ') {
-                    setMascotSpeech('⚡「別急別急～一聲要按下面長長的『空白鍵』喔！」');
+                    setMascotSpeech(`❌「你剛剛按到『${wrongLabel}』囉！一聲要按下面長長的『空白鍵』喔！」`);
                 } else if (expectedKey) {
-                    setMascotSpeech(`「加油！找找看發光的『${currentTargetZy}』(${expectedKey.finger}) 在哪裡～」`);
+                    setMascotSpeech(`❌「剛剛按到『${wrongLabel}』囉！找找看發光的『${currentTargetZy}』(${expectedKey.finger}) 在哪裡～」`);
                 }
             }
         }
 
-        // 第四關速度挑戰專用函式
         function spawnSpeedTarget() {
             const allKeys = Object.keys(ZHUYIN_MAP);
-            // 隨機選一個注音
             const randomKey = allKeys[Math.floor(Math.random() * allKeys.length)];
             currentSpeedTargetZy = randomKey;
 
@@ -840,7 +875,6 @@
             toggleModal('speed-result-modal', true);
         }
 
-        // 監聽實體鍵盤
         window.addEventListener('keydown', (e) => {
             const collectionOpen = !document.getElementById('collection-modal').classList.contains('hidden');
             const victoryOpen = !document.getElementById('victory-modal').classList.contains('hidden');
