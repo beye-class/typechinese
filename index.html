@@ -187,7 +187,13 @@
             </div>
 
             <!-- 右側功能按鈕：主題包、圖鑑、音效開關 -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- 1. 魔法隱形披風（盲打遮罩開關） -->
+                <button id="cloak-btn" onclick="toggleBlindCloak()" class="jelly-key bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-xs md:text-sm px-3 py-2 rounded-2xl border-2 border-purple-300 flex items-center gap-1" title="開啟後鍵盤不再提前發光，挑戰真正盲打！">
+                    <span id="cloak-icon">👀</span>
+                    <span id="cloak-text">提示：開啟</span>
+                </button>
+
                 <!-- 題庫主題選擇 -->
                 <select id="theme-selector" onchange="changeThemePack(this.value)" class="bg-amber-50 text-amber-800 text-xs md:text-sm font-bold px-3 py-2 rounded-2xl border-2 border-amber-200 focus:outline-none focus:border-amber-400 cursor-pointer">
                     <option value="insects">🐞 主題：台灣昆蟲與自然</option>
@@ -227,114 +233,101 @@
                 <button onclick="switchMode(4)" id="mode-btn-4" class="mode-tab whitespace-nowrap px-3 py-1.5 rounded-xl text-xs md:text-sm font-black transition-all text-slate-600 hover:bg-mint-50">
                     ⚡ 第四關：閃電速度挑戰
                 </button>
-            </div>
-
-            <!-- 連擊與過關進度顯示 -->
-            <div class="flex items-center gap-3">
-                <div id="combo-badge" class="bg-amber-100 border-2 border-amber-300 text-amber-700 px-3 py-1 rounded-2xl text-xs md:text-sm font-black flex items-center gap-1 transition-transform">
-                    ⭐ 連擊 Combo: <span id="combo-count" class="text-base">0</span>
-                </div>
-                <div class="bg-white border-2 border-mint-200 text-mint-600 px-3 py-1 rounded-2xl text-xs md:text-sm font-black">
-                    <span id="progress-label">🎯 本局進度:</span> <span id="stage-progress">1 / 5</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 中央互動舞台卡片 -->
-        <div class="relative bg-white/95 rounded-3xl border-4 border-mint-200 shadow-md p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 min-h-[210px] overflow-hidden">
-            
-            <!-- 背景說明 -->
-            <div class="absolute top-2 left-4 text-xs font-bold text-mint-500 flex items-center gap-2 z-20">
-                <span id="mode-subtitle" class="bg-mint-50 px-3 py-1 rounded-full border border-mint-200">💡 跟著發光的黃色按鍵，找出注音符號的位置吧！</span>
-            </div>
-
-            <!-- 浮動特效容器 -->
-            <div id="floating-fx-container" class="pointer-events-none absolute inset-0 flex items-center justify-center z-30"></div>
-
-            <!-- 第一至三關卡顯示的容器 (mode 1~3) -->
-            <div id="standard-game-container" class="w-full flex flex-col md:flex-row items-center justify-between gap-4 pt-6">
-                <!-- 左側：可愛情境插圖與意思提示 -->
-                <div class="flex flex-col items-center justify-center bg-cream rounded-2xl border-2 border-amber-100 p-4 w-full md:w-1/4">
-                    <div id="prompt-emoji" class="text-5xl md:text-6xl mb-2 transition-transform duration-300 hover:scale-110">
-                        🐞
-                    </div>
-                    <div id="prompt-word-title" class="text-base md:text-lg font-black text-slate-700 tracking-wider">
-                        瓢蟲
-                    </div>
-                    <div id="prompt-desc" class="text-xs text-slate-400 text-center mt-0.5">
-                        背上有圓點的小昆蟲
-                    </div>
-                </div>
-
-                <!-- 中間：超大國字與注音拼字分解格 -->
-                <div class="flex-1 flex flex-col items-center justify-center w-full py-2">
-                    <!-- 造詞過河石頭顯示 (第三關顯示完整詞語進度) -->
-                    <div id="word-river-stones" class="flex items-center gap-2 mb-3"></div>
-
-                    <!-- 當前正在拼打的目標國字與分解注音槽 -->
-                    <div id="typing-card" class="flex items-center gap-5 bg-gradient-to-b from-mint-50 to-white px-7 py-4 rounded-3xl border-2 border-mint-200 shadow-sm transition-all">
-                        <div class="flex flex-col items-center">
-                            <span class="text-[11px] font-bold text-mint-500 mb-0.5">目標字</span>
-                            <div id="active-char-box" class="text-5xl md:text-6xl font-black text-slate-800 leading-none select-none">
-                                瓢
-                            </div>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] font-bold text-slate-400 mb-1.5">請依序按下發光的注音鍵：</span>
-                            <div id="zhuyin-slots" class="flex items-center gap-2.5 flex-wrap"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 右側：手指提示小幫手卡片 -->
-                <div class="w-full md:w-1/4 bg-sky-50/70 rounded-2xl border-2 border-sky-200 p-3.5 flex flex-col items-center justify-center text-center">
-                    <div class="text-xs font-bold text-sky-600 mb-1 flex items-center gap-1">
-                        <span>🖐️ 小手姿勢小幫手</span>
-                    </div>
-                    <div id="finger-badge" class="bg-white px-4 py-2 rounded-2xl border-2 border-sky-300 shadow-sm text-base md:text-lg font-black text-sky-700 my-1">
-                        左手小指
-                    </div>
-                    <p id="key-hint-text" class="text-xs text-slate-500 mt-1">
-                        對應鍵盤上的 <span id="en-key-hint" class="font-mono font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">Q</span> 鍵
-                    </p>
-                    <button onclick="skipCurrentChar()" class="mt-2.5 text-[11px] text-slate-400 hover:text-mint-600 underline cursor-pointer">
-                        這題好難，換下一題 ⏭️
-                    </button>
-                </div>
-            </div>
-
-            <!-- 第四關速度挑戰容器 (mode 4) - 初始隱藏 -->
-            <div id="speed-game-container" class="hidden w-full flex-col items-center justify-center py-6 text-center">
-                <div class="flex items-center justify-center gap-6 mb-4">
-                    <div class="bg-amber-50 border-2 border-amber-300 px-5 py-2 rounded-2xl">
-                        <span class="text-xs text-amber-800 font-bold">⏱️ 剩餘時間</span>
-                        <div id="speed-timer" class="text-3xl font-black text-amber-600">30 秒</div>
-                    </div>
-                    <div class="bg-mint-50 border-2 border-mint-300 px-5 py-2 rounded-2xl">
-                        <span class="text-xs text-mint-800 font-bold">🏆 挑戰得分</span>
-                        <div id="speed-score" class="text-3xl font-black text-mint-600">0 分</div>
-                    </div>
-                </div>
-
-                <!-- 速度挑戰提示目標 -->
-                <div id="speed-prompt-box" class="bg-gradient-to-r from-peach-100 to-amber-100 border-4 border-peach-400 rounded-3xl px-8 py-6 shadow-md flex flex-col items-center justify-center mb-4 max-w-sm mx-auto">
-                    <span class="text-xs font-bold text-orange-600 mb-1">請以最快速度按下這個注音符號！</span>
-                    <div id="speed-target-zy" class="text-6xl md:text-7xl font-black text-slate-800 my-1 animate-pulse">
-                        ㄅ
-                    </div>
-                    <div id="speed-target-finger" class="text-xs font-bold text-slate-500 mt-1">
-                        左手小指
-                    </div>
-                </div>
-
-                <button id="speed-start-btn" onclick="startSpeedChallenge()" class="jelly-key bg-mint-500 hover:bg-mint-600 text-white font-black text-lg px-8 py-3 rounded-2xl border-2 border-mint-600 shadow-md">
-                    🚀 開始 30 秒閃電速度挑戰！
+                <button onclick="switchMode(5)" id="mode-btn-5" class="mode-tab whitespace-nowrap px-3 py-1.5 rounded-xl text-xs md:text-sm font-black transition-all text-slate-600 hover:bg-mint-50">
+                    🔍 第五關：同音字選字
                 </button>
             </div>
+
+            <!-- 進度與連擊指示器 -->
+            <div class="flex items-center gap-2 bg-white/90 px-3.5 py-1.5 rounded-2xl border-2 border-mint-200 shadow-sm text-xs md:text-sm font-bold">
+                <span id="progress-label" class="text-slate-500">🎯 本局進度:</span>
+                <span id="stage-progress" class="text-mint-600 font-black">1 / 3</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-amber-500 font-black">🔥 連擊 <span id="combo-count">0</span></span>
+            </div>
         </div>
 
-        <section class="bg-white/95 rounded-3xl border-4 border-mint-200 shadow-md p-3 md:p-4 flex flex-col gap-2">
-            <!-- 鍵盤分區顏色圖例說明 -->
+        <!-- 關卡提示副標題 -->
+        <div id="mode-subtitle" class="bg-amber-50/90 border border-amber-200 text-amber-800 text-xs md:text-sm font-bold px-4 py-2 rounded-2xl shadow-sm">
+            🏮 第二關【點亮燈籠】：練習完整的「注音＋聲調」，記得一聲要按長長的空白鍵喔！
+        </div>
+
+        <!-- 主遊戲互動舞台區 -->
+        <section class="relative bg-white/95 rounded-3xl border-4 border-mint-200 shadow-md p-4 md:p-6 flex flex-col items-center justify-center min-h-[230px]">
+            <!-- 飄浮連擊獎勵容器 -->
+            <div id="floating-fx-container" class="absolute top-3 right-6 pointer-events-none flex flex-col items-end gap-1 z-30"></div>
+
+            <!-- 標準闖關模式舞台 (第 1, 2, 3, 5 關) -->
+            <div id="standard-game-container" class="w-full flex flex-col items-center gap-4">
+                <!-- 詞語情境卡片與過河石頭 -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-3 bg-cream px-4 py-3 rounded-2xl border-2 border-mint-100">
+                    <div class="flex items-center gap-3">
+                        <span id="prompt-emoji" class="text-4xl bg-white p-2 rounded-2xl shadow-sm border border-mint-100">🐞</span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 id="prompt-word-title" class="text-xl md:text-2xl font-black text-slate-800">瓢蟲</h2>
+                                <button onclick="skipCurrentChar()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold px-2.5 py-1 rounded-xl transition" title="換下一個詞語">
+                                    ⏭️ 跳過這題
+                                </button>
+                            </div>
+                            <p id="prompt-desc" class="text-xs text-slate-500 mt-0.5">背上有圓點的小昆蟲，會幫農夫吃害蟲喔！</p>
+                        </div>
+                    </div>
+
+                    <!-- 過河石頭進度列 -->
+                    <div id="word-river-stones" class="flex items-center gap-2 flex-wrap"></div>
+                </div>
+
+                <!-- 當前正在拼打的目標國字與分解注音槽 -->
+                <div id="typing-card" class="relative flex flex-wrap items-center justify-center gap-5 bg-gradient-to-b from-mint-50 to-white px-7 py-4 rounded-3xl border-2 border-mint-200 shadow-sm transition-all">
+                    <div class="flex flex-col items-center">
+                        <span class="text-[11px] font-bold text-mint-500 mb-0.5">目標字</span>
+                        <div id="active-char-box" class="text-5xl md:text-6xl font-black text-slate-800 leading-none select-none">
+                            瓢
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="slot-instruction" class="text-[11px] font-bold text-slate-400 mb-1.5">請依序按下發光的注音鍵：</span>
+                        <div id="zhuyin-slots" class="flex items-center gap-2.5 flex-wrap"></div>
+                    </div>
+
+                    <!-- 第五關專屬：同音字候選視窗 -->
+                    <div id="candidate-popup" class="hidden absolute -bottom-16 left-1/2 -translate-x-1/2 bg-white border-4 border-amber-400 rounded-2xl shadow-xl px-4 py-2 z-30 flex items-center gap-3 whitespace-nowrap animate-bounce">
+                        <span class="text-xs font-black text-amber-700 bg-amber-100 px-2 py-1 rounded-lg">🔢 請按數字鍵選字：</span>
+                        <div id="candidate-list" class="flex items-center gap-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四關專屬：⚡ 閃電速度挑戰舞台 -->
+            <div id="speed-game-container" class="hidden w-full flex-col items-center justify-center gap-4 py-2">
+                <div class="flex items-center gap-6 bg-sky-50 px-6 py-2.5 rounded-2xl border-2 border-sky-200">
+                    <div class="text-center">
+                        <div class="text-xs font-bold text-slate-500">⏱️ 剩餘時間</div>
+                        <div id="speed-timer" class="text-2xl font-black text-rose-500">30 秒</div>
+                    </div>
+                    <div class="h-8 w-0.5 bg-sky-200"></div>
+                    <div class="text-center">
+                        <div class="text-xs font-bold text-slate-500">⚡ 答對分數</div>
+                        <div id="speed-score" class="text-2xl font-black text-sky-600">0 分</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center bg-gradient-to-b from-amber-50 to-white px-10 py-4 rounded-3xl border-4 border-amber-300 shadow-md">
+                    <span class="text-xs font-bold text-amber-600 mb-1">快按下這個注音鍵！</span>
+                    <div id="speed-target-zy" class="text-6xl font-black text-slate-800 my-1">ㄅ</div>
+                    <span id="speed-target-finger" class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full mt-1">左手小指</span>
+                </div>
+
+                <button id="speed-start-btn" onclick="startSpeedChallenge()" class="jelly-key bg-amber-400 hover:bg-amber-500 text-amber-950 font-black px-6 py-2.5 rounded-2xl border-2 border-amber-600 text-base shadow-md">
+                    🚀 開始 30 秒閃電挑戰！
+                </button>
+            </div>
+        </section>
+
+        <!-- 下方台灣標準注音虛擬鍵盤與手指分工指引 -->
+        <section class="bg-white/95 rounded-3xl border-4 border-mint-200 shadow-md p-3 md:p-4 flex flex-col gap-2.5">
+            <!-- 鍵盤分區顏色圖例與小手姿勢提示 -->
             <div class="flex flex-wrap items-center justify-between gap-2 px-2 text-xs">
                 <div class="flex items-center gap-3 flex-wrap">
                     <span class="font-bold text-slate-500">🎨 鍵盤魔法分區：</span>
@@ -343,24 +336,30 @@
                     <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-sky-100 border border-sky-400 inline-block"></span> 右手韻母區 (ㄚ~ㄦ)</span>
                     <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-berry-100 border border-berry-400 inline-block"></span> 聲調魔法鍵 (ˉ ˊ ˇ ˋ ˙)</span>
                 </div>
-                <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">🔒 實體鍵盤專屬訓練：請用雙手按實體鍵盤喔！</span>
+
+                <!-- 小手姿勢小幫手 -->
+                <div class="flex items-center gap-2 bg-amber-50 px-3 py-1 rounded-xl border border-amber-200">
+                    <span>🖐️ 建議指法：</span>
+                    <span id="finger-badge" class="font-black text-amber-700">左手小指</span>
+                    <span class="text-slate-400">|</span>
+                    <span class="text-slate-500">英文鍵位：<strong id="en-key-hint" class="font-mono text-slate-700">Q</strong></span>
+                </div>
             </div>
 
-            <!-- 鍵盤主體容器 -->
-            <div id="virtual-keyboard" class="flex flex-col gap-1.5 md:gap-2 select-none w-full overflow-x-auto py-1"></div>
+            <!-- 虛擬注音鍵盤動態渲染容器（已鎖定滑鼠點擊，僅供盲打視覺對照） -->
+            <div id="virtual-keyboard" class="w-full flex flex-col items-center gap-1.5 py-1 overflow-x-auto"></div>
         </section>
-
     </main>
 
     <!-- 圖鑑收集冊 Modal -->
     <div id="collection-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-cream rounded-3xl border-4 border-mint-400 max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex items-center justify-between border-b-2 border-mint-100 pb-3 mb-4">
+        <div class="bg-cream rounded-3xl border-4 border-pink-300 max-w-2xl w-full max-h-[85vh] p-6 shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b-2 border-pink-100">
                 <div class="flex items-center gap-2">
-                    <span class="text-2xl">📖</span>
+                    <span class="text-3xl">📖</span>
                     <div>
-                        <h2 class="text-xl font-black text-mint-600">森林打字圖鑑收集冊</h2>
-                        <p class="text-xs text-slate-500">只要完成練習，就能點亮可愛的知識小卡片喔！</p>
+                        <h2 class="text-xl font-black text-pink-600">森林魔法圖鑑收集冊</h2>
+                        <p class="text-xs text-slate-500">每完成一個語詞練習，就能點亮一張可愛知識卡喔！</p>
                     </div>
                 </div>
                 <button onclick="toggleModal('collection-modal', false)" class="jelly-key bg-slate-100 hover:bg-slate-200 text-slate-600 font-black px-3.5 py-1.5 rounded-xl">
@@ -501,19 +500,80 @@
 
         const THEME_PACKS = {
             insects: [
-                { id: 'card_1', word: '瓢蟲', emoji: '🐞', desc: '背上有圓點的小昆蟲，會幫農夫吃害蟲喔！', chars: [{ char: '瓢', zy: ['ㄆ', 'ㄧ', 'ㄠ', 'ˊ'] }, { char: '蟲', zy: ['ㄔ', 'ㄨ', 'ㄥ', 'ˊ'] }] },
-                { id: 'card_2', word: '螢火蟲', emoji: '✨', desc: '夏天的夜晚會提著小燈籠在草叢裡飛舞！', chars: [{ char: '螢', zy: ['ㄧ', 'ㄥ', 'ˊ'] }, { char: '火', zy: ['ㄏ', 'ㄨ', 'ㄛ', 'ˇ'] }, { char: '蟲', zy: ['ㄔ', 'ㄨ', 'ㄥ', 'ˊ'] }] },
-                { id: 'card_3', word: '獨角仙', emoji: '🪲', desc: '頭上有帥氣的大角，最喜歡吸食光臘樹的樹汁！', chars: [{ char: '獨', zy: ['ㄉ', 'ㄨ', 'ˊ'] }, { char: '角', zy: ['ㄐ', 'ㄧ', 'ㄠ', 'ˇ'] }, { char: '仙', zy: ['ㄒ', 'ㄧ', 'ㄢ', 'ˉ'] }] }
+                {
+                    id: 'card_1', word: '瓢蟲', emoji: '🐞', desc: '背上有圓點的小昆蟲，會幫農夫吃害蟲喔！',
+                    chars: [
+                        { char: '瓢', zy: ['ㄆ', 'ㄧ', 'ㄠ', 'ˊ'], candidates: ['漂', '瓢', '飄'], ansNum: '2' },
+                        { char: '蟲', zy: ['ㄔ', 'ㄨ', 'ㄥ', 'ˊ'], candidates: ['蟲', '重', '崇'], ansNum: '1' }
+                    ]
+                },
+                {
+                    id: 'card_2', word: '螢火蟲', emoji: '✨', desc: '夏天的夜晚會提著小燈籠在草叢裡飛舞！',
+                    chars: [
+                        { char: '螢', zy: ['ㄧ', 'ㄥ', 'ˊ'], candidates: ['營', '贏', '螢'], ansNum: '3' },
+                        { char: '火', zy: ['ㄏ', 'ㄨ', 'ㄛ', 'ˇ'], candidates: ['火', '伙', '夥'], ansNum: '1' },
+                        { char: '蟲', zy: ['ㄔ', 'ㄨ', 'ㄥ', 'ˊ'], candidates: ['重', '蟲', '崇'], ansNum: '2' }
+                    ]
+                },
+                {
+                    id: 'card_3', word: '獨角仙', emoji: '🪲', desc: '頭上有帥氣的大角，最喜歡吸食光臘樹的樹汁！',
+                    chars: [
+                        { char: '獨', zy: ['ㄉ', 'ㄨ', 'ˊ'], candidates: ['讀', '毒', '獨'], ansNum: '3' },
+                        { char: '角', zy: ['ㄐ', 'ㄧ', 'ㄠ', 'ˇ'], candidates: ['腳', '角', '餃'], ansNum: '2' },
+                        { char: '仙', zy: ['ㄒ', 'ㄧ', 'ㄢ', 'ˉ'], candidates: ['先', '仙', '鮮'], ansNum: '2' }
+                    ]
+                }
             ],
             campus: [
-                { id: 'card_4', word: '放大鏡', emoji: '🔍', desc: '自然課觀察葉脈與小昆蟲必備的神奇工具！', chars: [{ char: '放', zy: ['ㄈ', 'ㄤ', 'ˋ'] }, { char: '大', zy: ['ㄉ', 'ㄚ', 'ˋ'] }, { char: '鏡', zy: ['ㄐ', 'ㄧ', 'ㄥ', 'ˋ'] }] },
-                { id: 'card_5', word: '躲避球', emoji: '🏐', desc: '下課鐘聲一響，大家最愛到操場玩的刺激遊戲！', chars: [{ char: '躲', zy: ['ㄉ', 'ㄨ', 'ㄛ', 'ˇ'] }, { char: '避', zy: ['ㄅ', 'ㄧ', 'ˋ'] }, { char: '球', zy: ['ㄑ', 'ㄧ', 'ㄡ', 'ˊ'] }] },
-                { id: 'card_6', word: '聯絡簿', emoji: '📓', desc: '每天放學前要抄寫作業與心情小日記的本子。', chars: [{ char: '聯', zy: ['ㄌ', 'ㄧ', 'ㄢ', 'ˊ'] }, { char: '絡', zy: ['ㄌ', 'ㄨ', 'ㄛ', 'ˋ'] }, { char: '簿', zy: ['ㄅ', 'ㄨ', 'ˋ'] }] }
+                {
+                    id: 'card_4', word: '放大鏡', emoji: '🔍', desc: '自然課觀察葉脈與小昆蟲必備的神奇工具！',
+                    chars: [
+                        { char: '放', zy: ['ㄈ', 'ㄤ', 'ˋ'], candidates: ['放', '訪', '紡'], ansNum: '1' },
+                        { char: '大', zy: ['ㄉ', 'ㄚ', 'ˋ'], candidates: ['大', '代', '帶'], ansNum: '1' },
+                        { char: '鏡', zy: ['ㄐ', 'ㄧ', 'ㄥ', 'ˋ'], candidates: ['靜', '敬', '鏡'], ansNum: '3' }
+                    ]
+                },
+                {
+                    id: 'card_5', word: '躲避球', emoji: '🏐', desc: '下課鐘聲一響，大家最愛到操場玩的刺激遊戲！',
+                    chars: [
+                        { char: '躲', zy: ['ㄉ', 'ㄨ', 'ㄛ', 'ˇ'], candidates: ['朵', '躲', '垛'], ansNum: '2' },
+                        { char: '避', zy: ['ㄅ', 'ㄧ', 'ˋ'], candidates: ['閉', '幣', '避'], ansNum: '3' },
+                        { char: '球', zy: ['ㄑ', 'ㄧ', 'ㄡ', 'ˊ'], candidates: ['球', '求', '囚'], ansNum: '1' }
+                    ]
+                },
+                {
+                    id: 'card_6', word: '聯絡簿', emoji: '📓', desc: '每天放學前要抄寫作業與心情小日記的本子。',
+                    chars: [
+                        { char: '聯', zy: ['ㄌ', 'ㄧ', 'ㄢ', 'ˊ'], candidates: ['連', '聯', '蓮'], ansNum: '2' },
+                        { char: '絡', zy: ['ㄌ', 'ㄨ', 'ㄛ', 'ˋ'], candidates: ['落', '絡', '洛'], ansNum: '2' },
+                        { char: '簿', zy: ['ㄅ', 'ㄨ', 'ˋ'], candidates: ['部', '步', '簿'], ansNum: '3' }
+                    ]
+                }
             ],
             snacks: [
-                { id: 'card_7', word: '雞蛋糕', emoji: '🥞', desc: '放學路邊香噴噴、外酥內軟的可愛造型小點心！', chars: [{ char: '雞', zy: ['ㄐ', 'ㄧ', 'ˉ'] }, { char: '蛋', zy: ['ㄉ', 'ㄢ', 'ˋ'] }, { char: '糕', zy: ['ㄍ', 'ㄠ', 'ˉ'] }] },
-                { id: 'card_8', word: '豆漿', emoji: '🥛', desc: '營養滿分的傳統早餐飲料，由黃豆研磨而成。', chars: [{ char: '豆', zy: ['ㄉ', 'ㄡ', 'ˋ'] }, { char: '漿', zy: ['ㄐ', 'ㄧ', 'ㄤ', 'ˉ'] }] },
-                { id: 'card_9', word: '小籠包', emoji: '🥟', desc: '熱騰騰的蒸籠點心，裡面有滿滿的鮮美湯汁！', chars: [{ char: '小', zy: ['ㄒ', 'ㄧ', 'ㄠ', 'ˇ'] }, { char: '籠', zy: ['ㄌ', 'ㄨ', 'ㄥ', 'ˊ'] }, { char: '包', zy: ['ㄅ', 'ㄠ', 'ˉ'] }] }
+                {
+                    id: 'card_7', word: '雞蛋糕', emoji: '🥞', desc: '放學路邊香噴噴、外酥內軟的可愛造型小點心！',
+                    chars: [
+                        { char: '雞', zy: ['ㄐ', 'ㄧ', 'ˉ'], candidates: ['機', '積', '雞'], ansNum: '3' },
+                        { char: '蛋', zy: ['ㄉ', 'ㄢ', 'ˋ'], candidates: ['但', '蛋', '淡'], ansNum: '2' },
+                        { char: '糕', zy: ['ㄍ', 'ㄠ', 'ˉ'], candidates: ['高', '糕', '膏'], ansNum: '2' }
+                    ]
+                },
+                {
+                    id: 'card_8', word: '豆漿', emoji: '🥛', desc: '營養滿分的傳統早餐飲料，由黃豆研磨而成。',
+                    chars: [
+                        { char: '豆', zy: ['ㄉ', 'ㄡ', 'ˋ'], candidates: ['逗', '鬥', '豆'], ansNum: '3' },
+                        { char: '漿', zy: ['ㄐ', 'ㄧ', 'ㄤ', 'ˉ'], candidates: ['江', '將', '漿'], ansNum: '3' }
+                    ]
+                },
+                {
+                    id: 'card_9', word: '小籠包', emoji: '🥟', desc: '熱騰騰的蒸籠點心，裡面有滿滿的鮮美湯汁！',
+                    chars: [
+                        { char: '小', zy: ['ㄒ', 'ㄧ', 'ㄠ', 'ˇ'], candidates: ['小', '曉', '筱'], ansNum: '1' },
+                        { char: '籠', zy: ['ㄌ', 'ㄨ', 'ㄥ', 'ˊ'], candidates: ['龍', '隆', '籠'], ansNum: '3' },
+                        { char: '包', zy: ['ㄅ', 'ㄠ', 'ˉ'], candidates: ['包', '胞', '苞'], ansNum: '1' }
+                    ]
+                }
             ]
         };
 
@@ -523,6 +583,8 @@
         let wordIndex = 0;
         let charIndex = 0;
         let zyIndex = 0;
+        let isBlindCloakOn = false;     // 魔法隱形披風狀態
+        let isWaitingCandidate = false; // 第五關：是否正在等待按數字鍵選字
 
         let dewdrops = 15;
         let combo = 0;
@@ -707,8 +769,8 @@
             const slotsContainer = document.getElementById('zhuyin-slots');
             slotsContainer.innerHTML = '';
             targetZyList.forEach((zy, idx) => {
-                const isCompleted = idx < zyIndex;
-                const isCurrent = idx === zyIndex;
+                const isCompleted = isWaitingCandidate || idx < zyIndex;
+                const isCurrent = !isWaitingCandidate && idx === zyIndex;
                 const slot = document.createElement('div');
                 slot.className = `px-3.5 py-2 rounded-2xl border-2 font-black text-lg md:text-2xl flex items-center justify-center gap-1 transition-all ${
                     isCompleted ? 'bg-mint-500 text-white border-mint-600 scale-95' :
@@ -723,25 +785,136 @@
                 slotsContainer.appendChild(slot);
             });
 
-            highlightTargetKey(currentTargetZy);
+            // 處理第五關同音字選字彈窗狀態
+            const candidatePopup = document.getElementById('candidate-popup');
+            const slotInstruction = document.getElementById('slot-instruction');
+            if (currentMode === 5 && isWaitingCandidate) {
+                slotInstruction.textContent = '🎉 拼音完成！請看下方選字框，按下正確的數字鍵 (1、2 或 3)：';
+                candidatePopup.classList.remove('hidden');
+                const listEl = document.getElementById('candidate-list');
+                listEl.innerHTML = '';
+                currentCharObj.candidates.forEach((candChar, i) => {
+                    const num = i + 1;
+                    const badge = document.createElement('div');
+                    badge.className = 'px-3 py-1 rounded-xl bg-cream border-2 border-amber-300 font-black text-lg text-slate-800 flex items-center gap-1';
+                    badge.innerHTML = `<span class="text-xs bg-amber-400 text-white px-1.5 py-0.5 rounded-md">${num}</span><span>${candChar}</span>`;
+                    listEl.appendChild(badge);
+                });
+                // 清除鍵盤注音發光，改提示上方數字鍵
+                document.querySelectorAll('.target-key-glow').forEach(el => el.classList.remove('target-key-glow'));
+                document.getElementById('finger-badge').textContent = `上方數字鍵 [${currentCharObj.ansNum}]`;
+                document.getElementById('en-key-hint').textContent = currentCharObj.ansNum;
+            } else {
+                candidatePopup.classList.add('hidden');
+                slotInstruction.textContent = isBlindCloakOn
+                    ? '🥷 隱形披風啟動中！靠記憶找出注音鍵吧：'
+                    : '請依序按下發光的注音鍵：';
+                highlightTargetKey(currentTargetZy);
+            }
         }
 
         function highlightTargetKey(targetZy) {
             document.querySelectorAll('.target-key-glow').forEach(el => {
                 el.classList.remove('target-key-glow');
             });
+
+            const keyInfo = ZHUYIN_MAP[targetZy];
+
+            // 如果開啟「魔法隱形披風」，不提前發光提示按鍵位置
+            if (isBlindCloakOn) {
+                document.getElementById('finger-badge').textContent = '🥷 隱形披風盲打中';
+                document.getElementById('en-key-hint').textContent = '???';
+                return;
+            }
+
             const targetBtn = document.getElementById(`vkey-${targetZy}`);
             if (targetBtn) {
                 targetBtn.classList.add('target-key-glow');
             }
-            const keyInfo = ZHUYIN_MAP[targetZy];
             if (keyInfo) {
                 document.getElementById('finger-badge').textContent = keyInfo.finger;
                 document.getElementById('en-key-hint').textContent = keyInfo.en;
             }
         }
 
+        function toggleBlindCloak() {
+            isBlindCloakOn = !isBlindCloakOn;
+            const btn = document.getElementById('cloak-btn');
+            const icon = document.getElementById('cloak-icon');
+            const text = document.getElementById('cloak-text');
+
+            if (isBlindCloakOn) {
+                btn.className = 'jelly-key bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs md:text-sm px-3 py-2 rounded-2xl border-2 border-purple-800 flex items-center gap-1 shadow-md';
+                icon.textContent = '🥷';
+                text.textContent = '隱形披風：開啟';
+                setMascotSpeech('🥷「哇！穿上魔法隱形披風了！鍵盤不再偷給提示，挑戰真正的盲打吧！」');
+            } else {
+                btn.className = 'jelly-key bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold text-xs md:text-sm px-3 py-2 rounded-2xl border-2 border-purple-300 flex items-center gap-1';
+                icon.textContent = '👀';
+                text.textContent = '提示：開啟';
+                setMascotSpeech('👀「已解除隱形披風，發光小精靈回來幫你指路囉！」');
+            }
+
+            if (currentMode === 4 && speedActive) {
+                highlightTargetKey(currentSpeedTargetZy);
+            } else if (currentMode !== 4) {
+                updateStageUI();
+            }
+        }
+
+        function advanceCharacterOrWord(pack, currentWordObj) {
+            playTone('word-complete');
+            zyIndex = 0;
+            isWaitingCandidate = false;
+            charIndex++;
+
+            if (charIndex >= currentWordObj.chars.length) {
+                unlockedCards.add(currentWordObj.id);
+                updateCollectionBadge();
+                charIndex = 0;
+                wordIndex++;
+
+                if (wordIndex >= pack.length) {
+                    wordIndex = 0;
+                    showVictoryModal(currentWordObj);
+                    return true;
+                } else {
+                    setMascotSpeech(`「完成『${currentWordObj.word}』了！獲得一張新圖鑑卡！」`);
+                }
+            }
+            return false;
+        }
+
+        function handleCandidateSelection(numStr) {
+            const { pack, currentWordObj, currentCharObj } = getCurrentTargetData();
+            if (numStr === currentCharObj.ansNum) {
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
+                dewdrops += 3;
+                updateTopStats();
+                spawnFloatingText(`✅ 選對「${currentCharObj.char}」了！+3 💧`);
+                const finishedRound = advanceCharacterOrWord(pack, currentWordObj);
+                if (!finishedRound) updateStageUI();
+            } else {
+                combo = 0;
+                playTone('gentle-oops');
+                updateTopStats();
+                const popup = document.getElementById('candidate-popup');
+                popup.classList.remove('shake-error');
+                void popup.offsetWidth;
+                popup.classList.add('shake-error');
+                setMascotSpeech(`❌「按到數字 ${numStr} 囉！仔細看看『${currentCharObj.char}』是第 ${currentCharObj.ansNum} 個字喔！」`);
+            }
+        }
+
         function handleZhuyinInput(inputZy) {
+            // 若在第五關等待按數字鍵選字時，誤按了注音鍵
+            if (currentMode === 5 && isWaitingCandidate) {
+                playTone('gentle-oops');
+                setMascotSpeech('🔢「注音已經拼完囉！現在請按鍵盤最上面一排的數字鍵 1、2 或 3 選字！」');
+                return;
+            }
+
             const pressedBtn = document.getElementById(`vkey-${inputZy}`);
             if (pressedBtn) {
                 pressedBtn.classList.add('active-press');
@@ -764,13 +937,13 @@
                         updateTopStats();
                         triggerWrongKeyFeedback(inputZy);
                         const wrongLabel = inputZy === 'ˉ' ? '空白鍵(一聲)' : inputZy;
-                        setMascotSpeech(`❌「剛剛按到『${wrongLabel}』囉！快找發光的『${currentSpeedTargetZy}』！」`);
+                        setMascotSpeech(`❌「剛剛按到『${wrongLabel}』囉！快找『${currentSpeedTargetZy}』！」`);
                     }
                 }
                 return;
             }
 
-            const { pack, currentWordObj, targetZyList, currentTargetZy } = getCurrentTargetData();
+            const { pack, currentWordObj, currentCharObj, targetZyList, currentTargetZy } = getCurrentTargetData();
 
             if (inputZy === currentTargetZy) {
                 combo++;
@@ -778,6 +951,12 @@
                 dewdrops += 2;
                 playTone('pop');
                 updateTopStats();
+
+                // 隱形披風模式下按對時，閃爍一下綠光給予肯定回饋
+                if (isBlindCloakOn && pressedBtn) {
+                    pressedBtn.classList.add('target-key-glow');
+                    setTimeout(() => pressedBtn.classList.remove('target-key-glow'), 220);
+                }
 
                 if (combo % 5 === 0) {
                     spawnFloatingText(`🌟 ${combo} 連擊太神啦！`);
@@ -788,24 +967,16 @@
 
                 zyIndex++;
                 if (zyIndex >= targetZyList.length) {
-                    playTone('word-complete');
-                    zyIndex = 0;
-                    charIndex++;
-
-                    if (charIndex >= currentWordObj.chars.length) {
-                        unlockedCards.add(currentWordObj.id);
-                        updateCollectionBadge();
-                        charIndex = 0;
-                        wordIndex++;
-
-                        if (wordIndex >= pack.length) {
-                            wordIndex = 0;
-                            showVictoryModal(currentWordObj);
-                            return;
-                        } else {
-                            setMascotSpeech(`「完成『${currentWordObj.word}』了！獲得一張新圖鑑卡！」`);
-                        }
+                    // 第五關模式：拼完注音後，進入「選字階段」
+                    if (currentMode === 5) {
+                        isWaitingCandidate = true;
+                        setMascotSpeech(`🔍「拼好音了！請按數字鍵 ${currentCharObj.ansNum} 選出正確的『${currentCharObj.char}』！」`);
+                        updateStageUI();
+                        return;
                     }
+
+                    const finishedRound = advanceCharacterOrWord(pack, currentWordObj);
+                    if (finishedRound) return;
                 }
                 updateStageUI();
             } else {
@@ -824,7 +995,7 @@
                 if (currentTargetZy === 'ˉ') {
                     setMascotSpeech(`❌「你剛剛按到『${wrongLabel}』囉！一聲要按下面長長的『空白鍵』喔！」`);
                 } else if (expectedKey) {
-                    setMascotSpeech(`❌「剛剛按到『${wrongLabel}』囉！找找看發光的『${currentTargetZy}』(${expectedKey.finger}) 在哪裡～」`);
+                    setMascotSpeech(`❌「剛剛按到『${wrongLabel}』囉！找找看『${currentTargetZy}』(${expectedKey.finger}) 在哪裡～」`);
                 }
             }
         }
@@ -883,6 +1054,16 @@
             const victoryOpen = !document.getElementById('victory-modal').classList.contains('hidden');
             const speedResOpen = !document.getElementById('speed-result-modal').classList.contains('hidden');
             if (collectionOpen || victoryOpen || speedResOpen) return;
+
+            // 第五關選字階段：攔截數字鍵 1~9（注意：在注音輸入中 1 是ㄅ，所以僅在選字階段把 1~9 當選字鍵）
+            if (currentMode === 5 && isWaitingCandidate) {
+                if (['Digit1', 'Digit2', 'Digit3', 'Numpad1', 'Numpad2', 'Numpad3'].includes(e.code)) {
+                    e.preventDefault();
+                    const pickedNum = e.code.slice(-1);
+                    handleCandidateSelection(pickedNum);
+                    return;
+                }
+            }
 
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -947,10 +1128,11 @@
         function switchMode(mode) {
             currentMode = mode;
             zyIndex = 0;
+            isWaitingCandidate = false;
             if (speedTimerInterval) clearInterval(speedTimerInterval);
             speedActive = false;
 
-            [1, 2, 3, 4].forEach(m => {
+            [1, 2, 3, 4, 5].forEach(m => {
                 const btn = document.getElementById(`mode-btn-${m}`);
                 if (m === mode) {
                     btn.className = 'mode-tab whitespace-nowrap px-3 py-1.5 rounded-xl text-xs md:text-sm font-black transition-all bg-mint-500 text-white shadow-sm';
@@ -963,7 +1145,8 @@
                 1: '🍎 第一關【果實尋寶】：只練習每個字的「第一個注音」，幫助眼睛快速找到按鍵位置！',
                 2: '🏮 第二關【點亮燈籠】：練習完整的「注音＋聲調」，記得一聲要按長長的空白鍵喔！',
                 3: '🪨 第三關【造詞過河】：挑戰連續打出完整語詞，收集主題圖鑑卡片！',
-                4: '⚡ 第四關【閃電速度挑戰】：30 秒內看見什麼注音就馬上按出來，極速提升打字反應！'
+                4: '⚡ 第四關【閃電速度挑戰】：30 秒內看見什麼注音就馬上按出來，極速提升打字反應！',
+                5: '🔍 第五關【同音字選字】：拼完注音後，按下數字鍵 1、2 或 3 選出正確的國字，告別錯別字！'
             };
             document.getElementById('mode-subtitle').textContent = subtitles[mode];
 
@@ -995,6 +1178,7 @@
             wordIndex = 0;
             charIndex = 0;
             zyIndex = 0;
+            isWaitingCandidate = false;
             if (currentMode !== 4) updateStageUI();
             setMascotSpeech('「換新主題囉！來看看有哪些有趣的詞語吧！」');
         }
@@ -1003,6 +1187,7 @@
             const { pack } = getCurrentTargetData();
             zyIndex = 0;
             charIndex = 0;
+            isWaitingCandidate = false;
             wordIndex = (wordIndex + 1) % pack.length;
             updateStageUI();
             setMascotSpeech('「沒問題，我們先試試看下一題！」');
